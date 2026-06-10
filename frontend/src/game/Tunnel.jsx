@@ -33,7 +33,7 @@ export default function Tunnel({ color = "#00f3ff", speed = 24 }) {
       {/* Glow rings */}
       {rings.map((z, i) => (
         <mesh
-          key={i}
+          key={`ring-${i}`}
           ref={(el) => (ringRefs.current[i] = el)}
           position={[0, 0, z]}
           rotation={[0, 0, 0]}

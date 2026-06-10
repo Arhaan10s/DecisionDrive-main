@@ -62,7 +62,7 @@ export default function HighScores() {
               </thead>
               <tbody>
                 {scores.map((s, i) => (
-                  <tr key={i} className="border-t border-cyan-500/20" data-testid={`score-row-${i}`}>
+                  <tr key={`${s.at}-${i}`} className="border-t border-cyan-500/20" data-testid={`score-row-${i}`}>
                     <td className="py-3 text-white/40">{String(i + 1).padStart(2, "0")}</td>
                     <td className="py-3 font-heading text-xl font-bold text-cyan-300 text-glow-cyan">{s.score}</td>
                     <td className="py-3">
