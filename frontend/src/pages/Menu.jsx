@@ -28,14 +28,12 @@ export default function Menu() {
         {/* Left: Title block */}
         <div className="flex-1 flex flex-col justify-center pl-10 sm:pl-20 lg:pl-32 pr-8 max-w-3xl">
           <div className="font-mono text-xs tracking-[0.35em] text-cyan-400/80 mb-4 text-glow-cyan">
-            // VECTOR/RUN.V1
+            // DECISION/DRIVE.V1
           </div>
           <h1 className="font-heading text-6xl sm:text-7xl lg:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
-            <span className="text-white text-glow-cyan">NEON</span>
+            <span className="text-white text-glow-cyan">DECISION</span>
             <br />
-            <span className="text-[#ff003c] text-glow-pink">TUNNEL</span>
-            <br />
-            <span className="text-white">RUNNER</span>
+            <span className="text-[#ff003c] text-glow-pink">DRIVE</span>
           </h1>
           <p className="mt-6 font-mono text-sm text-white/70 max-w-md tracking-wide">
             Pilot through an electrified void. Dodge obstacles, survive escalating levels and outrun your friend in split-screen VS mode.
