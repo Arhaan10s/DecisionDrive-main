@@ -1,13 +1,28 @@
-import { Canvas } from "@react-three/fiber";
-import { Suspense, useEffect, useRef, useState, useMemo } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Tunnel, { TUNNEL_RADIUS } from "@/game/Tunnel";
 import Ship from "@/game/Ship";
 import Obstacle from "@/game/Obstacle";
 import StarField from "@/game/StarField";
 import { getLevel, levelFromScore } from "@/game/levels";
 
-const MAX_X = TUNNEL_RADIUS - 0.9; // playable horizontal bounds
 const SPAWN_Z = -85;
+// Radius along which player & obstacles orbit (inside the tunnel for nice visual).
+export const PLAY_RADIUS = 2.0;
+
+/* Group that rotates the entire tunnel/obstacles world around Z based on player's angle,
+   so the ship appears to spin around the inside wall of the tunnel. */
+function WorldRotator({ angleRef, children }) {
+  const groupRef = useRef();
+  useFrame((_, dt) => {
+    if (!groupRef.current) return;
+    // Smooth interpolation toward target rotation
+    const target = -angleRef.current;
+    const cur = groupRef.current.rotation.z;
+    groupRef.current.rotation.z = cur + (target - cur) * Math.min(1, dt * 14);
+  });
+  return <group ref={groupRef}>{children}</group>;
+}
 
 /* Reusable 3D scene + game loop for a single playfield (used by solo & each VS half) */
 export default function GameField({
@@ -20,10 +35,11 @@ export default function GameField({
   paused = false,
   active = true,
   playerLabel = "P1",
-  cameraSplit = false,
 }) {
-  const playerX = useRef(0);
-  const targetX = useRef(0);
+  // Angular position of the ship around the tunnel axis (radians). 0 = bottom of view.
+  const playerAngle = useRef(0);
+  const targetAngle = useRef(0);
+  const tiltRef = useRef(0); // for ship roll animation
   const [obstacles, setObstacles] = useState([]);
   const scoreRef = useRef(0);
   const livesRef = useRef(3);
@@ -35,7 +51,7 @@ export default function GameField({
   const [flashRed, setFlashRed] = useState(false);
   const [, setTick] = useState(0); // for re-render on level/lives change
 
-  // Keyboard input
+  // Keyboard input -> rotate around tunnel
   useEffect(() => {
     if (!active) return;
     const keys = {};
@@ -49,11 +65,12 @@ export default function GameField({
     window.addEventListener("keydown", handleDown);
     window.addEventListener("keyup", handleUp);
 
+    const ANGULAR_STEP = 0.11; // radians per tick
     const moveInterval = setInterval(() => {
       if (paused || !aliveRef.current) return;
-      const speed = 0.18;
-      if (keys[controls.left]) targetX.current = Math.max(-MAX_X, targetX.current - speed);
-      if (keys[controls.right]) targetX.current = Math.min(MAX_X, targetX.current + speed);
+      // pressing "right" rotates the ship clockwise around the tunnel
+      if (keys[controls.left]) targetAngle.current -= ANGULAR_STEP;
+      if (keys[controls.right]) targetAngle.current += ANGULAR_STEP;
     }, 16);
 
     return () => {
@@ -63,11 +80,15 @@ export default function GameField({
     };
   }, [controls.left, controls.right, paused, active]);
 
-  // Smooth player X tracking (visual)
+  // Smooth angular tracking + tilt
   useEffect(() => {
     let raf;
     const loop = () => {
-      playerX.current += (targetX.current - playerX.current) * 0.18;
+      const prev = playerAngle.current;
+      playerAngle.current += (targetAngle.current - prev) * 0.18;
+      // velocity (delta) drives the ship roll animation
+      const vel = playerAngle.current - prev;
+      tiltRef.current += (vel * 4 - tiltRef.current) * 0.18;
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -81,8 +102,6 @@ export default function GameField({
     const loop = () => {
       if (!paused && aliveRef.current) {
         const now = performance.now();
-        const elapsed = (now - startTimeRef.current) / 1000;
-        // Score grows ~ 50/s scaled by level
         const lvl = getLevel(scoreRef.current);
         const delta = (lvl.speed / 24) * 0.85;
         scoreRef.current += delta;
@@ -95,30 +114,28 @@ export default function GameField({
           setTick((t) => t + 1);
         }
 
-        // Spawn obstacles
+        // Spawn obstacles at random angles around the tunnel
         if (now - lastSpawnRef.current > lvl.spawnRate * 1000) {
           lastSpawnRef.current = now;
-          // sometimes spawn 2-3 obstacles in a wave with gaps
-          const count = Math.random() < 0.25 ? 2 : 1;
+          const count = Math.random() < 0.3 ? 2 : 1;
           const newObs = [];
-          const positions = new Set();
+          const usedAngles = [];
           for (let i = 0; i < count; i++) {
             let attempts = 0;
-            let x;
+            let angle;
             do {
-              x = (Math.random() * 2 - 1) * MAX_X;
+              angle = Math.random() * Math.PI * 2;
               attempts++;
             } while (
-              [...positions].some((p) => Math.abs(p - x) < 1.4) &&
+              usedAngles.some((a) => angularDistance(a, angle) < 0.7) &&
               attempts < 6
             );
-            positions.add(x);
+            usedAngles.push(angle);
             obstacleIdRef.current += 1;
             const shapes = ["box", "pyramid", "octa"];
             newObs.push({
               id: obstacleIdRef.current,
-              x,
-              y: -0.4,
+              angle,
               z: SPAWN_Z,
               shape: shapes[Math.floor(Math.random() * shapes.length)],
               color: i === 0 ? "#ff003c" : "#ff00d4",
@@ -165,7 +182,7 @@ export default function GameField({
       )}
       <Canvas
         gl={{ antialias: true, powerPreference: "high-performance" }}
-        camera={{ position: [0, 0.4, 4], fov: 65, near: 0.1, far: 300 }}
+        camera={{ position: [0, 0, 5.5], fov: 75, near: 0.1, far: 300 }}
         dpr={[1, 2]}
       >
         <color attach="background" args={["#040408"]} />
@@ -173,21 +190,33 @@ export default function GameField({
         <ambientLight intensity={0.15} />
         <Suspense fallback={null}>
           <StarField count={250} />
-          <Tunnel color={level.color} speed={tunnelSpeed} />
-          <Ship xRef={playerX} color={shipColor} glowColor={shipColor} />
-          {obstacles.map((o) => (
-            <Obstacle
-              key={o.id}
-              obstacle={{ ...o, y: -0.4 }}
-              speed={tunnelSpeed}
-              onPass={handlePass}
-              onHit={handleHit}
-              playerXRef={playerX}
-              alive={aliveRef.current}
-            />
-          ))}
+          {/* Tunnel + obstacles rotate around z based on player angle */}
+          <WorldRotator angleRef={playerAngle}>
+            <Tunnel color={level.color} speed={tunnelSpeed} />
+            {obstacles.map((o) => (
+              <Obstacle
+                key={o.id}
+                obstacle={o}
+                speed={tunnelSpeed}
+                onPass={handlePass}
+                onHit={handleHit}
+                playerAngleRef={playerAngle}
+                alive={aliveRef.current}
+              />
+            ))}
+          </WorldRotator>
+          {/* Ship stays fixed at the bottom of the tunnel from camera POV */}
+          <Ship tiltRef={tiltRef} color={shipColor} glowColor={shipColor} />
         </Suspense>
       </Canvas>
     </>
   );
+}
+
+// Shortest signed angular distance between two angles (radians)
+function angularDistance(a, b) {
+  let d = a - b;
+  while (d > Math.PI) d -= Math.PI * 2;
+  while (d < -Math.PI) d += Math.PI * 2;
+  return Math.abs(d);
 }

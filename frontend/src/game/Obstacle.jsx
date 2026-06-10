@@ -1,11 +1,16 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import * as THREE from "three";
+import { PLAY_RADIUS } from "@/game/GameField";
 
-/* A single obstacle that moves toward the camera */
-export default function Obstacle({ obstacle, speed, onPass, onHit, playerXRef, alive }) {
+/* A single obstacle stuck to the inside wall of the tunnel at a given angle.
+   It moves toward the camera along z; collision is angular. */
+export default function Obstacle({ obstacle, speed, onPass, onHit, playerAngleRef, alive }) {
   const ref = useRef();
   const passed = useRef(false);
+
+  // Static world position derived from angle (placed inside rotating world group).
+  const wx = Math.sin(obstacle.angle) * PLAY_RADIUS;
+  const wy = -Math.cos(obstacle.angle) * PLAY_RADIUS;
 
   useFrame((_, dt) => {
     if (!ref.current) return;
@@ -13,19 +18,22 @@ export default function Obstacle({ obstacle, speed, onPass, onHit, playerXRef, a
     ref.current.rotation.x += dt * 1.2;
     ref.current.rotation.y += dt * 1.6;
 
-    // Collision check at player z (~1.5)
     const z = ref.current.position.z;
-    if (!passed.current && z > 0.9 && z < 2.1 && alive) {
-      const dx = Math.abs(ref.current.position.x - (playerXRef?.current ?? 0));
-      const dy = Math.abs(ref.current.position.y - (-0.4));
-      if (dx < 0.6 && dy < 0.8) {
+    if (!passed.current && z > 1.4 && z < 2.6 && alive) {
+      // Player ship sits at angle 0 (bottom of tunnel) in world's rotating frame.
+      // The world is rotated by -playerAngle, so collision is when
+      // obstacle.angle ~ playerAngle.
+      const pa = playerAngleRef?.current ?? 0;
+      let diff = obstacle.angle - pa;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      if (Math.abs(diff) < 0.42) {
         passed.current = true;
         onHit?.(obstacle.id);
         return;
       }
     }
-    // Passed past camera
-    if (!passed.current && z > 4) {
+    if (!passed.current && z > 5) {
       passed.current = true;
       onPass?.(obstacle.id);
     }
@@ -34,7 +42,7 @@ export default function Obstacle({ obstacle, speed, onPass, onHit, playerXRef, a
   const color = obstacle.color || "#ff003c";
 
   return (
-    <mesh ref={ref} position={[obstacle.x, obstacle.y, obstacle.z]}>
+    <mesh ref={ref} position={[wx, wy, obstacle.z]}>
       {obstacle.shape === "pyramid" ? (
         <coneGeometry args={[0.55, 0.9, 4]} />
       ) : obstacle.shape === "octa" ? (

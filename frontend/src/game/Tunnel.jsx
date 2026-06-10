@@ -58,13 +58,18 @@ export default function Tunnel({ color = "#00f3ff", speed = 24 }) {
       {/* Lane guide lines (8 longitudinal lines for depth perception) - only behind camera */}
       {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
         const angle = (i / 8) * Math.PI * 2;
+        // i === 0 is the "ground" marker (where ship sits at angle 0), highlighted so rotation is visible
+        const isMarker = i === 0;
+        const thickness = isMarker ? 0.07 : 0.025;
+        const lineColor = isMarker ? "#ff003c" : color;
+        const opacity = isMarker ? 0.85 : 0.32;
         return (
           <mesh
             key={`l${i}`}
-            position={[Math.cos(angle) * (RADIUS - 0.05), Math.sin(angle) * (RADIUS - 0.05), -TUNNEL_LENGTH / 2 + 2]}
+            position={[Math.sin(angle) * (RADIUS - 0.05), -Math.cos(angle) * (RADIUS - 0.05), -TUNNEL_LENGTH / 2 + 2]}
           >
-            <boxGeometry args={[0.025, 0.025, TUNNEL_LENGTH - 6]} />
-            <meshBasicMaterial color={color} toneMapped={false} transparent opacity={0.35} />
+            <boxGeometry args={[thickness, thickness, TUNNEL_LENGTH - 6]} />
+            <meshBasicMaterial color={lineColor} toneMapped={false} transparent opacity={opacity} />
           </mesh>
         );
       })}
