@@ -127,7 +127,7 @@ export default function GameField({
               angle = Math.random() * Math.PI * 2;
               attempts++;
             } while (
-              usedAngles.some((a) => angularDistance(a, angle) < 0.7) &&
+              usedAngles.some((a) => angularDistance(a, angle) < 1.7) &&
               attempts < 6
             );
             usedAngles.push(angle);

@@ -19,7 +19,7 @@ export default function Obstacle({ obstacle, speed, onPass, onHit, playerAngleRe
     ref.current.rotation.y += dt * 1.6;
 
     const z = ref.current.position.z;
-    if (!passed.current && z > 1.4 && z < 2.6 && alive) {
+    if (!passed.current && z > -0.5 && z < 3.5 && alive) {
       // Player ship sits at angle 0 (bottom of tunnel) in world's rotating frame.
       // The world is rotated by -playerAngle, so collision is when
       // obstacle.angle ~ playerAngle.
@@ -27,13 +27,13 @@ export default function Obstacle({ obstacle, speed, onPass, onHit, playerAngleRe
       let diff = obstacle.angle - pa;
       while (diff > Math.PI) diff -= Math.PI * 2;
       while (diff < -Math.PI) diff += Math.PI * 2;
-      if (Math.abs(diff) < 0.42) {
+      if (Math.abs(diff) < 0.85) {
         passed.current = true;
         onHit?.(obstacle.id);
         return;
       }
     }
-    if (!passed.current && z > 5) {
+    if (!passed.current && z > 6) {
       passed.current = true;
       onPass?.(obstacle.id);
     }
@@ -44,11 +44,11 @@ export default function Obstacle({ obstacle, speed, onPass, onHit, playerAngleRe
   return (
     <mesh ref={ref} position={[wx, wy, obstacle.z]}>
       {obstacle.shape === "pyramid" ? (
-        <coneGeometry args={[0.55, 0.9, 4]} />
+        <coneGeometry args={[2.75, 4.5, 4]} />
       ) : obstacle.shape === "octa" ? (
-        <octahedronGeometry args={[0.55, 0]} />
+        <octahedronGeometry args={[2.75, 0]} />
       ) : (
-        <boxGeometry args={[0.8, 0.8, 0.8]} />
+        <boxGeometry args={[4, 4, 4]} />
       )}
       <meshStandardMaterial
         color="#1a0008"
