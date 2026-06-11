@@ -1,0 +1,108 @@
+{
+  "theme": "dark",
+  "archetype": "7 (Electric & Neon)",
+  "emotional_tone": "High-energy, synthetic, competitive, aggressive",
+  "typography": {
+    "fonts": {
+      "heading": "Unbounded",
+      "body": "JetBrains Mono"
+    },
+    "hierarchy": {
+      "h1": "text-5xl sm:text-6xl font-black tracking-tighter uppercase",
+      "h2": "text-3xl sm:text-4xl font-bold tracking-tight uppercase",
+      "h3": "text-xl sm:text-2xl font-bold tracking-tight",
+      "body": "text-base font-normal tracking-wide",
+      "label": "text-xs font-bold tracking-[0.2em] uppercase"
+    },
+    "rules": [
+      "Headings must use tight letter spacing.",
+      "Labels and HUD indicators must be uppercase with wide tracking.",
+      "DO NOT use Inter or Roboto."
+    ]
+  },
+  "colors": {
+    "background": {
+      "main": "#050505",
+      "surface": "rgba(5, 5, 5, 0.7)",
+      "surface_glass": "rgba(0, 0, 0, 0.6)"
+    },
+    "accents": {
+      "primary": "#00f3ff",
+      "secondary": "#ff003c",
+      "tertiary": "#39ff14",
+      "warning": "#ffe600"
+    },
+    "text": {
+      "primary": "#ffffff",
+      "secondary": "#a0a0a0",
+      "accent_primary": "#00f3ff",
+      "accent_secondary": "#ff003c"
+    },
+    "rules": [
+      "Never use pure white backgrounds.",
+      "Surfaces must have a sharp 1px border using accent colors with reduced opacity (e.g., border-cyan-500/50).",
+      "Text over 3D canvas MUST have text-shadow for readability: text-shadow: 0 0 8px rgba(0,243,255,0.6)."
+    ]
+  },
+  "surfaces_and_borders": {
+    "style": "Retro-Futurism / The Terminal Look",
+    "border_radius": "rounded-none",
+    "hud_panel": "backdrop-blur-md bg-black/40 border border-cyan-500/50 shadow-[0_0_15px_rgba(0,243,255,0.2)_inset]",
+    "button": "bg-transparent border border-cyan-500 text-cyan-500 uppercase tracking-widest transition-all duration-200 hover:bg-cyan-500 hover:text-black hover:shadow-[0_0_20px_rgba(0,243,255,0.8)] focus:outline-none focus:ring-2 focus:ring-cyan-300",
+    "button_secondary": "bg-transparent border border-pink-500 text-pink-500 uppercase tracking-widest transition-all duration-200 hover:bg-pink-500 hover:text-black hover:shadow-[0_0_20px_rgba(255,0,60,0.8)] focus:outline-none focus:ring-2 focus:ring-pink-300",
+    "visual_effects": [
+      "Scanlines overlay on menus: repeating-linear-gradient to create CRT monitor effect.",
+      "Glitch effects on hover or game over."
+    ]
+  },
+  "spacing_and_layout": {
+    "general": "Generous spacing in menus (gap-8, p-12). High density in HUD.",
+    "hud_layout": {
+      "top_left": "Player 1 Stats (Score, Lives) - Left aligned.",
+      "top_right": "Player 2 Stats (Score, Lives) - Right aligned.",
+      "top_center": "Level & Speed Indicator - Centered.",
+      "center": "Crosshair or Center Reticle (optional)"
+    },
+    "menu_layout": "Bento or Asymmetrical grid. Left-aligned main menu items overlapping a 3D background or scanline dark void."
+  },
+  "motion_and_interactions": {
+    "hover": "Aggressive neon glow on hover with instantaneous color inversion (bg becomes accent, text becomes black).",
+    "transitions": "Fast, snappy transitions (duration-150 or duration-200). No slow eases.",
+    "game_over": "Sudden red screen flash followed by slow zoom out of the menu overlay."
+  },
+  "three_d_guidelines": {
+    "library": "Three.js with React Three Fiber",
+    "tunnel_aesthetics": "Deep void background. Tunnel constructed of wireframe neon grids or glowing rings moving towards the camera. Colors shifting based on level (Lvl 1: Cyan, Lvl 2: Pink, Lvl 3: Yellow).",
+    "player_ship_1": "Sleek low-poly triangle. Glowing Cyan emission.",
+    "player_ship_2": "Sleek low-poly triangle. Glowing Green emission.",
+    "obstacles": "Solid geometric shapes (cubes, pyramids) with intense Red/Pink glowing edges (MeshStandardMaterial with emissive properties).",
+    "lighting": "Dark ambient light. Rely heavily on Emissive materials and PointLights attached to ships and obstacles. Bloom effect (via @react-three/postprocessing) is MANDATORY for the neon look.",
+    "camera": "Third-person chase camera positioned slightly above and behind the player's ship."
+  },
+  "components": {
+    "instructions_to_main_agent": [
+      "Use Lucide-React for standard icons (e.g., lives/hearts, settings).",
+      "Do NOT use Shadcn Card components for the main menus. Use pure HTML/Tailwind to build sharp, 0-radius futuristic panels.",
+      "Use Shadcn Dialog/Modal with HEAVY custom styling (black bg, neon border, no rounded corners) for Pause/Settings overlays.",
+      "Ensure the 3D Canvas spans 100vw and 100vh, fixed to the background. All UI must be z-10 overlays on top of the canvas.",
+      "Implement local storage for high scores.",
+      "Keyboard bindings: P1 (A/D to move, W to boost if applicable), P2 (Arrow Left/Right)."
+    ]
+  },
+  "testing": {
+    "requirements": [
+      "Add data-testid attributes to all menu buttons (e.g., data-testid='play-solo-btn', data-testid='vs-mode-btn').",
+      "Add data-testid to HUD elements (e.g., data-testid='p1-score')."
+    ]
+  },
+  "image_urls": {
+    "background_texture": {
+      "url": "https://images.unsplash.com/photo-1773429494448-1c13750ad80d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODh8MHwxfHNlYXJjaHwzfHxuZW9uJTIwZ3JpZCUyMGRhcmslMjBjeWJlcnB1bmt8ZW58MHx8fHwxNzgxMTE2MjQyfDA&ixlib=rb-4.1.0&q=85",
+      "description": "Abstract geometric pattern with glowing purple and green lines - useful for fallback or menu background overlay."
+    },
+    "menu_hero": {
+      "url": "https://images.unsplash.com/photo-1672872476232-da16b45c9001?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwxfHxjeWJlcnB1bmslMjBuZW9uJTIwZ2FtZXxlbnwwfHx8fDE3ODExMTYyNDF8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Futuristic city at night with neon lights - perfect for the main menu background behind the UI panels if a 3D scene isn't rendering yet."
+    }
+  }
+}

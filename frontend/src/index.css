@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #050505;
+    color: #ffffff;
+    overflow: hidden;
+    font-family: 'JetBrains Mono', monospace;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.font-heading { font-family: 'Unbounded', sans-serif; letter-spacing: -0.02em; }
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Scanlines overlay */
+.scanlines::before {
+    content: "";
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.02) 0px,
+        rgba(255,255,255,0.02) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    mix-blend-mode: overlay;
+}
+
+/* Vignette */
+.vignette::after {
+    content: "";
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 49;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+}
+
+.text-glow-cyan { text-shadow: 0 0 8px rgba(0,243,255,0.85), 0 0 16px rgba(0,243,255,0.4); }
+.text-glow-pink { text-shadow: 0 0 8px rgba(255,0,60,0.85), 0 0 16px rgba(255,0,60,0.4); }
+.text-glow-green { text-shadow: 0 0 8px rgba(57,255,20,0.85), 0 0 16px rgba(57,255,20,0.4); }
+.text-glow-yellow { text-shadow: 0 0 8px rgba(255,230,0,0.85), 0 0 16px rgba(255,230,0,0.4); }
+
+.box-glow-cyan { box-shadow: 0 0 20px rgba(0,243,255,0.35), inset 0 0 20px rgba(0,243,255,0.08); }
+.box-glow-pink { box-shadow: 0 0 20px rgba(255,0,60,0.35), inset 0 0 20px rgba(255,0,60,0.08); }
+.box-glow-green { box-shadow: 0 0 20px rgba(57,255,20,0.35), inset 0 0 20px rgba(57,255,20,0.08); }
+
+.btn-neon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.75rem;
+    background: transparent;
+    border: 1px solid #00f3ff;
+    color: #00f3ff;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+    position: relative;
+    user-select: none;
+}
+.btn-neon:hover {
+    background: #00f3ff;
+    color: #050505;
+    box-shadow: 0 0 24px rgba(0,243,255,0.85);
+    transform: translateY(-1px);
+}
+.btn-neon-pink { border-color: #ff003c; color: #ff003c; }
+.btn-neon-pink:hover { background: #ff003c; color: #050505; box-shadow: 0 0 24px rgba(255,0,60,0.85); }
+.btn-neon-green { border-color: #39ff14; color: #39ff14; }
+.btn-neon-green:hover { background: #39ff14; color: #050505; box-shadow: 0 0 24px rgba(57,255,20,0.85); }
+
+.panel-neon {
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0,243,255,0.5);
+    box-shadow: 0 0 20px rgba(0,243,255,0.18), inset 0 0 20px rgba(0,243,255,0.06);
+}
+
+.flash-red {
+    animation: flashRed 600ms ease-out;
+}
+@keyframes flashRed {
+    0% { background: rgba(255,0,60,0.65); }
+    100% { background: rgba(255,0,60,0); }
+}
+
+.glitch {
+    animation: glitch 200ms steps(2, end);
+}
+@keyframes glitch {
+    0% { transform: translate(0,0); }
+    25% { transform: translate(-2px,1px); }
+    50% { transform: translate(2px,-1px); }
+    75% { transform: translate(-1px,2px); }
+    100% { transform: translate(0,0); }
+}
+
+::selection { background: #00f3ff; color: #050505; }
+
+@layer base {
+    :root {
+        --background: 0 0% 2%;
+        --foreground: 0 0% 100%;
+        --card: 0 0% 4%;
+        --card-foreground: 0 0% 100%;
+        --popover: 0 0% 2%;
+        --popover-foreground: 0 0% 100%;
+        --primary: 187 100% 50%;
+        --primary-foreground: 0 0% 4%;
+        --secondary: 0 0% 8%;
+        --secondary-foreground: 0 0% 100%;
+        --muted: 0 0% 12%;
+        --muted-foreground: 0 0% 60%;
+        --accent: 187 100% 50%;
+        --accent-foreground: 0 0% 4%;
+        --destructive: 348 100% 50%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 187 80% 30%;
+        --input: 0 0% 12%;
+        --ring: 187 100% 50%;
+        --radius: 0rem;
+    }
+}
+
+@layer base {
+    * { @apply border-border; }
+}
